@@ -52,8 +52,8 @@ class HomeProvide extends BaseProvide {
   /// 失败: 处理错误，显示错误信息
   /// 订阅开始：loading = true
   /// 订阅结束：loading = false
-  /// 返回 [Observable] 给 View 层
-  Observable login() => _repo
+  /// 返回 [Stream] 给 View 层
+  Stream login() => _repo
       .login(username, password)
       .doOnData((r) => response = r.toString())
       .doOnError((e, stacktrace) {

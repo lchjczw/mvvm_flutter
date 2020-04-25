@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:rxdart/rxdart.dart';
 import '../helper/toast.dart';
 import '../helper/widget_utils.dart';
 import '../view/base.dart';

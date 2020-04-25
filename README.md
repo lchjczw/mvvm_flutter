@@ -34,7 +34,7 @@ The Structure seems like [MVVM-Android](https://github.com/ditclear/MVVM-Android
 ```dart
 //remote
 class GithubService{
-  Observable<dynamic> login()=> get("user");
+  Stream<dynamic> login()=> get("user");
 }
 //repo
 class GithubRepo {
@@ -42,7 +42,7 @@ class GithubRepo {
 
   GithubRepo(this._remote);
 
-  Observable login(String username, String password) {
+  Stream login(String username, String password) {
     token = "basic " + base64Encode(utf8.encode('$username:$password'));
     return _remote.login();
   }
@@ -64,7 +64,7 @@ class HomeViewModel extends ChangeNotifier {
    * doOnListen ： show loading when listen start
    * doOnDone ： hide loading when complete
    */
-  Observable login() => _repo
+  Stream login() => _repo
       .login(username, password)
       .doOnData((r) => response = r.toString())
       .doOnError((e, stacktrace) {

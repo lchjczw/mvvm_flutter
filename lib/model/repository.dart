@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'package:rxdart/rxdart.dart';
-
 import '../helper/constants.dart';
 import '../helper/net_utils.dart';
 import '../helper/shared_preferences.dart';
@@ -11,7 +9,7 @@ import '../helper/shared_preferences.dart';
 /// 提供网络层接口
 class GithubService {
   /// 登录
-  Observable login() => get("user");
+  Stream login() => get("user");
 }
 
 /// 仓库层
@@ -32,8 +30,8 @@ class GithubRepo {
   ///
   /// - 将ViewModel层 传递过来的[username] 和 [password] 处理为 token 并用[SharedPreferences]进行缓存
   /// - 调用 [_remote] 的 [login] 方法进行网络访问
-  /// - 返回 [Observable] 给ViewModel层
-  Observable login(String username, String password) {
+  /// - 返回 [Stream] 给ViewModel层
+  Stream login(String username, String password) {
     _sp.putString(KEY_TOKEN, "basic " + base64Encode(utf8.encode('$username:$password')));
     return _remote.login();
   }
