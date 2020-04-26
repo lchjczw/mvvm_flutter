@@ -39,18 +39,33 @@ class BaseProvide with ChangeNotifier {
     }
     super.dispose();
   }
+
+  var _notify;
+
+  dynamic get notify {
+    if (_notify == null) {
+      return notifyListeners;
+    }
+    return _notify;
+  }
+
+  set notify(v) {
+    _notify = v;
+  }
 }
 
 /// page的基类 [PageProvideNode]
 ///
 /// 隐藏了 [Provider] 的调用
-abstract class PageProvideNode<T extends ChangeNotifier> extends StatelessWidget implements Presenter {
+abstract class PageProvideNode<T extends ChangeNotifier> extends StatelessWidget
+    implements Presenter {
   final T mProvider;
 
   /// 构造函数
   ///
   /// [params] 代表注入ViewModel[mProvider]时所需的参数，需按照[mProvider]的构造方法顺序赋值
-  PageProvideNode({List<dynamic> params}) : mProvider = inject<T>(params: params);
+  PageProvideNode({List<dynamic> params})
+      : mProvider = inject<T>(params: params);
 
   Widget buildContent(BuildContext context);
 
@@ -67,4 +82,9 @@ abstract class PageProvideNode<T extends ChangeNotifier> extends StatelessWidget
   /// 可通过[action]进行分发
   @override
   void onClick(String action) {}
+}
+
+// ignore: camel_case_types
+abstract class Init {
+  void init();
 }

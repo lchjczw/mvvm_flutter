@@ -24,7 +24,7 @@ class HomePage extends PageProvideNode<HomeProvide> {
 }
 
 /// View : 登录页面
-///
+////.;
 /// 展示UI (ps:如果有UI地址，最好附上相应的链接)
 /// 与用户进行交互
 class _HomeContentPage extends StatefulWidget {
@@ -48,16 +48,19 @@ class _HomeContentState extends State<_HomeContentPage>
   Animation<double> _animation;
 
   static const ACTION_LOGIN = "login";
+  static const ACTION_USER_INFO = "user_info";
 
   @override
   void initState() {
     super.initState();
     mProvide = widget.provide;
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 300));
     _animation = Tween(begin: 295.0, end: 48.0).animate(_controller)
       ..addListener(() {
         mProvide.btnWidth = _animation.value;
       });
+    mProvide.init();
   }
 
   @override
@@ -72,6 +75,10 @@ class _HomeContentState extends State<_HomeContentPage>
     print("onClick:" + action);
     if (ACTION_LOGIN == action) {
       login();
+    }
+
+    if (ACTION_USER_INFO == action) {
+      userInfo();
     }
   }
 
@@ -90,6 +97,21 @@ class _HomeContentState extends State<_HomeContentPage>
     }).listen((_) {
       //success
       Toast.show("login success", context, type: Toast.SUCCESS);
+    }, onError: (e) {
+      //error
+      dispatchFailure(context, e);
+    });
+    mProvide.addSubscription(s);
+  }
+
+  void userInfo() {
+    final s = mProvide.user.userInfo().doOnListen(() {
+      _controller.forward();
+    }).doOnDone(() {
+      _controller.reverse();
+    }).listen((_) {
+      //success
+      Toast.show("user info success", context, type: Toast.SUCCESS);
     }, onError: (e) {
       //error
       dispatchFailure(context, e);
@@ -139,21 +161,34 @@ class _HomeContentState extends State<_HomeContentPage>
                 style: TextStyle(fontSize: 18),
                 textAlign: TextAlign.start,
               ),
-              Expanded(
-                child: Container(
-                  constraints: BoxConstraints(minWidth: double.infinity),
-                  margin: EdgeInsets.fromLTRB(12, 12, 12, 0),
-                  padding: EdgeInsets.all(5.0),
-                  decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
-                  child: Selector<HomeProvide, String>(
-                    selector: (_, data) => data.response,
-                    builder: (context, value, child) {
-                      // 使用Selector，当provide.notifyListeners()时,只有data.response改变的时候才会build
-                      return Text(value);
-                    },
-                  ),
+              Container(
+                constraints: BoxConstraints(minWidth: double.infinity),
+                margin: EdgeInsets.fromLTRB(12, 12, 12, 0),
+                padding: EdgeInsets.all(5.0),
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.blue)),
+                child: Selector<HomeProvide, String>(
+                  selector: (_, data) => data.user.response,
+                  builder: (context, value, child) {
+                    // 使用Selector，当provide.notifyListeners()时,只有data.response改变的时候才会build
+                    return Text(value);
+                  },
                 ),
-              )
+              ),
+              Container(
+                constraints: BoxConstraints(minWidth: double.infinity),
+                margin: EdgeInsets.fromLTRB(12, 12, 12, 0),
+                padding: EdgeInsets.all(5.0),
+                decoration:
+                    BoxDecoration(border: Border.all(color: Colors.blue)),
+                child: Selector<HomeProvide, String>(
+                  selector: (_, data) => data.response,
+                  builder: (context, value, child) {
+                    // 使用Selector，当provide.notifyListeners()时,只有data.response改变的时候才会build
+                    return Text(value);
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -166,11 +201,17 @@ class _HomeContentState extends State<_HomeContentPage>
   /// 按钮宽度根据是否进行请求由[_controller]控制
   /// 当 [mProvide.loading] 为true 时 ，点击事件不生效
   Consumer<HomeProvide> buildLoginBtnProvide() {
+    String act = ACTION_LOGIN;
     return Consumer<HomeProvide>(
       builder: (context, value, child) {
         // 使用 Consumer ,当provide.notifyListeners()时都会rebuild
         return CupertinoButton(
-          onPressed: value.loading ? null : () => onClick(ACTION_LOGIN),
+          onPressed: value.loading
+              ? null
+              : () {
+                  act = (act == ACTION_LOGIN) ? ACTION_USER_INFO : ACTION_LOGIN;
+                  onClick(act);
+                },
           pressedOpacity: 0.8,
           child: Container(
             alignment: Alignment.center,
@@ -182,7 +223,12 @@ class _HomeContentState extends State<_HomeContentPage>
                   Color(0xFF686CF2),
                   Color(0xFF0E5CFF),
                 ]),
-                boxShadow: [BoxShadow(color: Color(0x4D5E56FF), offset: Offset(0.0, 4.0), blurRadius: 13.0)]),
+                boxShadow: [
+                  BoxShadow(
+                      color: Color(0x4D5E56FF),
+                      offset: Offset(0.0, 4.0),
+                      blurRadius: 13.0)
+                ]),
             child: buildLoginChild(value),
           ),
         );
@@ -205,7 +251,8 @@ class _HomeContentState extends State<_HomeContentPage>
           maxLines: 1,
           textAlign: TextAlign.center,
           overflow: TextOverflow.fade,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.white),
+          style: const TextStyle(
+              fontWeight: FontWeight.bold, fontSize: 16.0, color: Colors.white),
         ),
       );
     }

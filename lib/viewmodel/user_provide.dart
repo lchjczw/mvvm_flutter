@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:mvvm_flutter/viewmodel/user_provide.dart';
+import 'package:mvvm_flutter/model/userrepo.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../model/repository.dart';
@@ -9,18 +9,15 @@ import '../view/base.dart';
 ///
 /// 将 Model层 [GithubRepo] 返回的数据转换成 View 层 [HomePage] 需要展示的数据
 /// 通过 [notifyListeners] 通知UI层更新
-class HomeProvide extends BaseProvide implements Init{
-  final GithubRepo _repo;
-  String username = "";
-  String password = "";
+class UserProvide extends BaseProvide implements Init {
+  UserRepo userRepo = UserRepo(remote: UserService());
+  String userName = "";
+  String userToken = "";
+  String userVarl = '';
   bool _loading = false;
-
-  UserProvide user = UserProvide();
 
   /// 结果
   String _response = "";
-
-  final String title;
 
   String get response => _response;
 
@@ -31,21 +28,10 @@ class HomeProvide extends BaseProvide implements Init{
 
   bool get loading => _loading;
 
-  double _btnWidth = 295.0;
-
-  double get btnWidth => _btnWidth;
-
-  set btnWidth(double btnWidth) {
-    _btnWidth = btnWidth;
-    notify();
-  }
-
   set loading(bool loading) {
     _loading = loading;
     notify();
   }
-
-  HomeProvide(this.title, this._repo);
 
   /// 登录
   ///
@@ -56,8 +42,8 @@ class HomeProvide extends BaseProvide implements Init{
   /// 订阅开始：loading = true
   /// 订阅结束：loading = false
   /// 返回 [Stream] 给 View 层
-  Stream login() => _repo
-      .login(username, password)
+  Stream userInfo() => userRepo
+      .info()
       .doOnData((r) => response = r.toString())
       .doOnError((e, stacktrace) {
         if (e is DioError) {
@@ -68,7 +54,5 @@ class HomeProvide extends BaseProvide implements Init{
       .doOnDone(() => loading = false);
 
   @override
-  init() {
-    user.notify = notify;
-  }
+  void init() {}
 }
